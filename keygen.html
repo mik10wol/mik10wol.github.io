@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Key Generator</title>
+  <style>
+    body { font-family: Arial; padding: 2em; }
+    button { padding: 0.5em 1em; font-size: 1em; }
+    #output { margin-top: 1em; font-weight: bold; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Generate a New Key</h1>
+  <button onclick="generateKey()">Generate Key</button>
+  <div id="output"></div>
+
+  <script>
+    function generateKey() {
+      const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      const groupLength = 4;
+      const groupCount = 3;
+      let key = [];
+
+      for (let i = 0; i < groupCount; i++) {
+        let group = "";
+        for (let j = 0; j < groupLength; j++) {
+          const randIndex = Math.floor(Math.random() * charset.length);
+          group += charset[randIndex];
+        }
+        key.push(group);
+      }
+
+      const finalKey = key.join("-");
+      document.getElementById("output").textContent = finalKey;
+    }
+  </script>
+</body>
+</html>

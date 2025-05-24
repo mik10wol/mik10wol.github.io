@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Awesome Website</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Password needed...</h1>
+<input type="text" class="text" placeholder="Enter password">
+<button class="button">Submit</button>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.querySelector(".button");
+  const input = document.querySelector(".text");
+
+  button.addEventListener("click", () => {
+    if (input.value === "tf2better") {
+      window.location.href = "appletreepong.html"; // Change to your target HTML page
+    } else {
+      alert("Incorrect password.");
+    }
+  });
+});
+</script>
+
+</body>
+</html>

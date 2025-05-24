@@ -44,3 +44,9 @@ blockquote {
   text-decoration-color: blue;
   text-decoration-style: wavy;
 }
+
+.des {
+  font-family: 'Inter', sans-serif;
+    font-size: 0.85em;
+    color: #777777; /* A slightly lighter grey */
+}

@@ -1,4 +1,3 @@
-<script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.querySelector("h1 input");
   const button = document.querySelector("button");
@@ -27,4 +26,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-</script>

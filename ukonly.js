@@ -7,7 +7,7 @@
 
 // The URL to redirect to if the user is NOT in the specified country.
 // Example: window.geoRedirectConfig = { redirectUrl: 'https://www.example.com/international-page' };
-let redirectUrl = window.geoRedirectConfig?.redirectUrl || 'https://www.example.com/international-page'; // <<< CHANGE THIS URL TO YOUR INTERNATIONAL PAGE
+let redirectUrl = window.geoRedirectConfig?.redirectUrl || 'https://mik10wol.github.io/nope.html'; // <<< CHANGE THIS URL TO YOUR INTERNATIONAL PAGE
 
 // The country code to check against (e.g., 'GB' for United Kingdom).
 // Example: window.geoRedirectConfig = { ukCountryCode: 'GB' };

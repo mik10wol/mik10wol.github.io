@@ -38,3 +38,9 @@ blockquote {
   border-left: 3px solid #d7d7db;
   font-size: 1rem;
 }
+
+.link {
+  text-decoration: underline;
+  text-decoration-color: blue;
+  text-decoration-style: wavy;
+}

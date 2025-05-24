@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const input = document.querySelector("h1 input");
+  const input = document.querySelector("input");
   const button = document.querySelector("button");
   const paragraph = document.querySelector("p");
 

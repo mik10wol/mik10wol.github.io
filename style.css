@@ -72,3 +72,8 @@ marquee {
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
   colour: red;
 }
+
+.i {
+  font-family: 'Segoe MDL2 Assets'
+  font-size: 16px;
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkbox Game</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f0f8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #game-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .checkbox {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    #debug-circle {
+      position: absolute;
+      width: 200px; /* Circle diameter */
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 0, 0, 0.2); /* Transparent red for debugging */
+      pointer-events: none;
+      display: none; /* Set to "block" to debug */
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="debug-circle"></div>
+  </div>
+
+  <script>
+    const container = document.getElementById('game-container');
+    const debugCircle = document.getElementById('debug-circle');
+    const circleRadius = 100; // Radius of the invisible circle
+
+    // Settings for the grid
+    const checkboxSize = 20; // Size of the checkbox in pixels
+    const spacing = 30; // Spacing between checkboxes in pixels
+    const containerWidth = window.innerWidth;
+    const containerHeight = window.innerHeight;
+    const cols = Math.floor(containerWidth / spacing);
+    const rows = Math.floor(containerHeight / spacing);
+
+    // Create checkboxes in a grid
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = true;
+        checkbox.className = 'checkbox';
+
+        // Position checkboxes in a grid
+        checkbox.style.left = `${col * spacing}px`;
+        checkbox.style.top = `${row * spacing}px`;
+
+        container.appendChild(checkbox);
+      }
+    }
+
+    const checkboxes = Array.from(document.querySelectorAll('.checkbox'));
+
+    // Function to update circle position and handle checkbox state
+    container.addEventListener('mousemove', (e) => {
+      const circleX = e.clientX;
+      const circleY = e.clientY;
+
+      // Position the debug circle (for debugging, toggle its visibility above)
+      debugCircle.style.left = `${circleX - circleRadius}px`;
+      debugCircle.style.top = `${circleY - circleRadius}px`;
+
+      // Handle checkboxes
+      checkboxes.forEach((checkbox) => {
+        const rect = checkbox.getBoundingClientRect();
+        const checkboxX = rect.left + rect.width / 2;
+        const checkboxY = rect.top + rect.height / 2;
+
+        const distance = Math.sqrt(
+          Math.pow(circleX - checkboxX, 2) + Math.pow(circleY - checkboxY, 2)
+        );
+
+        // Uncheck if within the circle, recheck otherwise
+        if (distance <= circleRadius) {
+          checkbox.checked = false;
+        } else {
+          checkbox.checked = true;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

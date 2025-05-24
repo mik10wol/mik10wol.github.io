@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falling Checked State</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f0f8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #game-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .checkbox {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container"></div>
+
+  <script>
+    const container = document.getElementById('game-container');
+    const checkboxSize = 20; // Size of each checkbox in pixels
+    const spacing = 30; // Spacing between checkboxes in pixels
+    const containerWidth = window.innerWidth;
+    const containerHeight = window.innerHeight;
+    const cols = Math.floor(containerWidth / spacing);
+    const rows = Math.floor(containerHeight / spacing);
+
+    const grid = []; // 2D array to store checkboxes
+
+    // Function to create the grid of checkboxes
+    for (let row = 0; row < rows; row++) {
+      const rowArray = [];
+      for (let col = 0; col < cols; col++) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'checkbox';
+        checkbox.checked = false;
+        checkbox.style.left = `${col * spacing}px`;
+        checkbox.style.top = `${row * spacing}px`;
+
+        // Add an event listener for when the checkbox is checked
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            passCheckedState(row, col);
+          }
+        });
+
+        container.appendChild(checkbox);
+        rowArray.push(checkbox);
+      }
+      grid.push(rowArray);
+    }
+
+    // Function to pass the checked state downward
+    function passCheckedState(startRow, col) {
+      let currentRow = startRow;
+
+      function fall() {
+        if (currentRow < rows - 1 && !grid[currentRow + 1][col].checked) {
+          // Uncheck current checkbox and check the one below
+          grid[currentRow][col].checked = false;
+          currentRow++;
+          grid[currentRow][col].checked = true;
+
+          // Continue falling
+          requestAnimationFrame(fall);
+        }
+      }
+
+      fall();
+    }
+  </script>
+</body>
+</html>

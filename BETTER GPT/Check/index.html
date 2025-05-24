@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkbox Game</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0f8ff;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    #checkbox {
+      position: absolute;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    #checkbox:checked + label {
+      font-size: 24px;
+      color: red;
+    }
+    #checkbox:checked + label::before {
+      content: "😡";
+    }
+    label {
+      font-size: 18px;
+      display: inline-block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: all 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <input type="checkbox" id="checkbox" />
+    <label for="checkbox"></label>
+  </div>
+
+  <script>
+    const checkbox = document.getElementById('checkbox');
+    const label = document.querySelector('label');
+    const container = document.getElementById('game-container');
+
+    // Function to generate random positions
+    function getRandomPosition() {
+      const containerRect = container.getBoundingClientRect();
+      const maxX = containerRect.width - 50; // account for checkbox size
+      const maxY = containerRect.height - 50;
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+      return { x, y };
+    }
+
+    // Move checkbox to a random position when mouse gets close
+    container.addEventListener('mousemove', (e) => {
+      const checkboxRect = checkbox.getBoundingClientRect();
+      const distance = Math.sqrt(
+        Math.pow(e.clientX - checkboxRect.x, 2) + Math.pow(e.clientY - checkboxRect.y, 2)
+      );
+      if (distance < 100) { // Threshold distance to trigger movement
+        const newPos = getRandomPosition();
+        checkbox.style.left = `${newPos.x}px`;
+        checkbox.style.top = `${newPos.y}px`;
+        label.style.left = `${newPos.x}px`;
+        label.style.top = `${newPos.y}px`;
+      }
+    });
+
+    // Update label when checkbox is checked
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        label.textContent = '😡';
+      } else {
+        label.textContent = '';
+      }
+    });
+
+    // Initialize checkbox in a random position
+    const initialPos = getRandomPosition();
+    checkbox.style.left = `${initialPos.x}px`;
+    checkbox.style.top = `${initialPos.y}px`;
+    label.style.left = `${initialPos.x}px`;
+    label.style.top = `${initialPos.y}px`;
+  </script>
+</body>
+</html>

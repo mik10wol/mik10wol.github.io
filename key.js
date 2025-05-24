@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const found = keys.includes(userInput);
 
       if (found) {
-        window.location.href = "https://example.com/success"; // change this to your target URL
+        window.location.href = "https://mik10wol.github.io/start.html"; // change this to your target URL
       } else {
         paragraph.textContent = "Did not find any similar keys. Make sure it legetete and spelt right. Keys refresh every 2 months so check with the owner for your new one";
       }

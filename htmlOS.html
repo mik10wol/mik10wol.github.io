@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HtmlOS</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body, html {
       margin: 0;
@@ -18,9 +16,7 @@
       color: white;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     header {
       position: absolute;
@@ -29,10 +25,10 @@
       padding: 1rem;
       font-size: 1.5rem;
       font-weight: bold;
+      background-color: rgba(0,0,0,0.3);
       z-index: 2;
     }
 
-    /* Login screen */
     .login-screen {
       display: flex;
       flex-direction: column;
@@ -50,10 +46,7 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
-    .login-container h2 {
-      text-align: center;
-    }
-
+    .login-container h2 { text-align: center; }
     .login-container input {
       width: 100%;
       padding: 0.5rem;
@@ -74,11 +67,6 @@
       cursor: pointer;
     }
 
-    .login-container button:hover {
-      background-color: #2980b9;
-    }
-
-    /* Desktop */
     .desktop {
       height: 100vh;
       width: 100vw;
@@ -86,16 +74,6 @@
       position: relative;
       overflow: hidden;
       display: none;
-    }
-
-    .desktop header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 1rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      background-color: rgba(0,0,0,0.3);
     }
 
     .desktop-icon {
@@ -164,6 +142,24 @@
       padding: 5px;
       cursor: move;
       user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .window-header .buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .window-header button {
+      background: rgba(255,255,255,0.3);
+      border: none;
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      cursor: pointer;
     }
 
     .window-content {
@@ -177,6 +173,12 @@
       resize: none;
       border: none;
       outline: none;
+    }
+
+    .taskbar-app {
+      margin-left: 10px;
+      cursor: pointer;
+      color: #ddd;
     }
   </style>
 </head>
@@ -210,14 +212,22 @@
 
   <!-- Taskbar -->
   <div class="taskbar">
-    <button class="start-button" onclick="toggleStartMenu()">Start</button>
-  </div>
-
-  <!-- Notepad Window -->
+  <button class="start-button" onclick="toggleStartMenu()">Start</button>
+  <div class="taskbar-app" onclick="openWindow('notepadWindow')">📝 Notepad</div>
+  <div style="margin-left:auto; color:#ccc;" id="clock"></div>
+</div>
+  <!-- Notepad App Window -->
   <div class="window" id="notepadWindow" style="top:100px;left:100px;">
-    <div class="window-header" onmousedown="startDrag(event, this.parentElement)">Notepad</div>
+    <div class="window-header" onmousedown="startDrag(event, this.parentElement)">
+  Notepad
+  <div class="buttons">
+    <button onclick="minimizeWindow('notepadWindow')">🗕</button>
+    <button onclick="maximizeWindow('notepadWindow')">🗖</button>
+    <button onclick="closeWindow('notepadWindow')">✕</button>
+  </div>
+</div>
     <div class="window-content">
-      <textarea placeholder="Type your notes here..."></textarea>
+      <textarea id="notepadArea" placeholder="Type your notes here..." oninput="saveNotes()"></textarea>
     </div>
   </div>
 </div>
@@ -226,6 +236,7 @@
   function login() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('desktop').style.display = 'block';
+    loadNotes();
   }
 
   function openWindow(id) {
@@ -233,6 +244,10 @@
     const win = document.getElementById(id);
     win.style.display = 'block';
     win.style.zIndex = ++zIndex;
+  }
+
+  function closeWindow(id) {
+    document.getElementById(id).style.display = 'none';
   }
 
   function toggleStartMenu() {
@@ -243,11 +258,11 @@
   let zIndex = 11;
   let dragData = null;
 
-  function startDrag(e, windowEl) {
+  function startDrag(e, el) {
     dragData = {
-      el: windowEl,
-      offsetX: e.clientX - windowEl.offsetLeft,
-      offsetY: e.clientY - windowEl.offsetTop
+      el,
+      offsetX: e.clientX - el.offsetLeft,
+      offsetY: e.clientY - el.offsetTop
     };
     document.addEventListener('mousemove', doDrag);
     document.addEventListener('mouseup', stopDrag);
@@ -264,6 +279,54 @@
     document.removeEventListener('mouseup', stopDrag);
     dragData = null;
   }
+
+  function saveNotes() {
+    const text = document.getElementById('notepadArea').value;
+    localStorage.setItem('htmlos_notes', text);
+  }
+
+  function loadNotes() {
+    const saved = localStorage.getItem('htmlos_notes');
+    if (saved) document.getElementById('notepadArea').value = saved;
+  }
+
+  function minimizeWindow(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function maximizeWindow(id) {
+  const win = document.getElementById(id);
+  if (win.classList.contains('maximized')) {
+    win.style.top = win.dataset.origTop;
+    win.style.left = win.dataset.origLeft;
+    win.style.width = win.dataset.origWidth;
+    win.style.height = win.dataset.origHeight;
+    win.classList.remove('maximized');
+  } else {
+    win.dataset.origTop = win.style.top;
+    win.dataset.origLeft = win.style.left;
+    win.dataset.origWidth = win.style.width;
+    win.dataset.origHeight = win.style.height;
+
+    win.style.top = '0';
+    win.style.left = '0';
+    win.style.width = '100vw';
+    win.style.height = 'calc(100vh - 40px)';
+    win.classList.add('maximized');
+  }
+}
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = now.getMinutes().toString().padStart(2, '0');
+  const d = now.toLocaleDateString();
+  document.getElementById('clock').innerText = `${h}:${m} — ${d}`;
+}
+  
+setInterval(updateClock, 1000);
+updateClock();
+  
 </script>
 
 </body>

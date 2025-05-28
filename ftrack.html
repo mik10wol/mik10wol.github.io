@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Face Feature Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas, video {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #fps {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px;
+      font-family: monospace;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+  <div id="fps">FPS: 0<br>Delay: 0ms</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const fpsDisplay = document.getElementById('fps');
+
+    let lastTime = performance.now();
+
+    const LABELS = {
+      'nose': 1,
+      'leftEye': 33,
+      'rightEye': 263,
+      'upperLip': 13,
+      'lowerLip': 14,
+      'leftMouthCorner': 61,
+      'rightMouthCorner': 291,
+      'leftEyebrow': 70,
+      'rightEyebrow': 300
+    };
+
+    async function setupCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+        audio: false
+      });
+      video.srcObject = stream;
+      return new Promise(resolve => {
+        video.onloadedmetadata = () => {
+          resolve(video);
+        };
+      });
+    }
+
+    async function main() {
+      await setupCamera();
+      video.play();
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const model = await faceLandmarksDetection.load(
+        faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
+      );
+
+      async function render() {
+        const start = performance.now();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const predictions = await model.estimateFaces({
+          input: video,
+          returnTensors: false,
+          flipHorizontal: false,
+          predictIrises: false
+        });
+
+        if (predictions.length > 0) {
+          for (let pred of predictions) {
+            const keypoints = pred.scaledMesh;
+
+            for (const [label, index] of Object.entries(LABELS)) {
+              const [x, y] = keypoints[index];
+              ctx.fillStyle = 'red';
+              ctx.beginPath();
+              ctx.arc(x, y, 3, 0, 2 * Math.PI);
+              ctx.fill();
+
+              ctx.fillStyle = 'yellow';
+              ctx.font = '12px sans-serif';
+              ctx.fillText(label, x + 5, y - 5);
+            }
+          }
+        }
+
+        const end = performance.now();
+        const delay = Math.round(end - start);
+        const fps = Math.round(1000 / (end - lastTime));
+        lastTime = end;
+        fpsDisplay.innerHTML = `FPS: ${fps}<br>Delay: ${delay}ms`;
+
+        requestAnimationFrame(render);
+      }
+
+      render();
+    }
+
+    main();
+  </script>
+</body>
+</html>

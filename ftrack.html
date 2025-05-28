@@ -71,10 +71,12 @@
 
     async function main() {
       await setupCamera();
-      video.play();
+      await video.play();
+      await new Promise(r => setTimeout(r, 500)); // short delay
 
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+
 
       const model = await faceLandmarksDetection.load(
         faceLandmarksDetection.SupportedPackages.mediapipeFacemesh

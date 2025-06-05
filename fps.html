@@ -11,6 +11,7 @@
       top: 10px; left: 10px;
       color: white; font-family: sans-serif;
       background: rgba(0,0,0,0.5); padding: 5px 10px;
+      z-index: 1;
     }
   </style>
 </head>
@@ -19,28 +20,57 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/PointerLockControls.js"></script>
   <script>
-    let scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    let renderer = new THREE.WebGLRenderer();
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x222222);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.6, 5); // Higher camera position (like a player)
+
+    const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Controls
-    let controls = new THREE.PointerLockControls(camera, document.body);
-    document.body.addEventListener('click', () => {
-      controls.lock();
-    });
-
+    const controls = new THREE.PointerLockControls(camera, document.body);
+    document.body.addEventListener('click', () => controls.lock());
     scene.add(controls.getObject());
 
-    // Movement variables
+    // Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 200, 0);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    dirLight.position.set(3, 10, 10);
+    scene.add(dirLight);
+
+    // Floor
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(200, 200),
+      new THREE.MeshStandardMaterial({ color: 0x555555 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // Boxes
+    for (let i = 0; i < 50; i++) {
+      const box = new THREE.Mesh(
+        new THREE.BoxGeometry(),
+        new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff })
+      );
+      box.position.set(
+        Math.random() * 100 - 50,
+        0.5,
+        Math.random() * 100 - 50
+      );
+      scene.add(box);
+    }
+
+    // Movement control
     let moveForward = false, moveBackward = false;
     let moveLeft = false, moveRight = false;
-    let velocity = new THREE.Vector3();
-    let direction = new THREE.Vector3();
+    const velocity = new THREE.Vector3();
+    const direction = new THREE.Vector3();
     const speed = 10.0;
-
-    // Arrow key looking
     let yaw = 0, pitch = 0;
 
     document.addEventListener('keydown', e => {
@@ -55,7 +85,6 @@
         case 'ArrowDown': pitch += 0.02; break;
       }
     });
-
     document.addEventListener('keyup', e => {
       switch (e.code) {
         case 'KeyW': moveForward = false; break;
@@ -65,45 +94,15 @@
       }
     });
 
-    // Floor
-    let floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(200, 200),
-      new THREE.MeshBasicMaterial({color: 0x333333, side: THREE.DoubleSide})
-    );
-    floor.rotation.x = -Math.PI / 2;
-    scene.add(floor);
-
-    // Random objects
-    for (let i = 0; i < 50; i++) {
-      let box = new THREE.Mesh(
-        new THREE.BoxGeometry(),
-        new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff })
-      );
-      box.position.set(
-        Math.random() * 100 - 50,
-        0.5,
-        Math.random() * 100 - 50
-      );
-      scene.add(box);
-    }
-
-    // Lighting
-    const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    light.position.set(0, 200, 0);
-    scene.add(light);
-
-    // Animate
-    let clock = new THREE.Clock();
-
+    const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-      let delta = clock.getDelta();
+      const delta = clock.getDelta();
 
-      // Movement
       velocity.set(0, 0, 0);
       direction.z = Number(moveForward) - Number(moveBackward);
       direction.x = Number(moveRight) - Number(moveLeft);
-      direction.normalize(); // prevent faster diagonal movement
+      direction.normalize();
 
       if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
       if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
@@ -111,15 +110,15 @@
       controls.moveRight(-velocity.x);
       controls.moveForward(-velocity.z);
 
-      // Arrow key look
+      // Apply arrow key look
       camera.rotation.order = 'YXZ';
       camera.rotation.y += yaw;
       camera.rotation.x += pitch;
-      yaw = 0; pitch = 0;
+      yaw = 0;
+      pitch = 0;
 
       renderer.render(scene, camera);
     }
-
     animate();
   </script>
 </body>

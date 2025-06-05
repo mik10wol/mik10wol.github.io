@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>First-Person Explorer</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #info {
+      position: absolute;
+      top: 10px; left: 10px;
+      color: white; font-family: sans-serif;
+      background: rgba(0,0,0,0.5); padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">Click to look around. WASD to move. Arrow keys to look.</div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/PointerLockControls.js"></script>
+  <script>
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    let renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Controls
+    let controls = new THREE.PointerLockControls(camera, document.body);
+    document.body.addEventListener('click', () => {
+      controls.lock();
+    });
+
+    scene.add(controls.getObject());
+
+    // Movement variables
+    let moveForward = false, moveBackward = false;
+    let moveLeft = false, moveRight = false;
+    let velocity = new THREE.Vector3();
+    let direction = new THREE.Vector3();
+    const speed = 10.0;
+
+    // Arrow key looking
+    let yaw = 0, pitch = 0;
+
+    document.addEventListener('keydown', e => {
+      switch (e.code) {
+        case 'KeyW': moveForward = true; break;
+        case 'KeyS': moveBackward = true; break;
+        case 'KeyA': moveLeft = true; break;
+        case 'KeyD': moveRight = true; break;
+        case 'ArrowLeft': yaw -= 0.02; break;
+        case 'ArrowRight': yaw += 0.02; break;
+        case 'ArrowUp': pitch -= 0.02; break;
+        case 'ArrowDown': pitch += 0.02; break;
+      }
+    });
+
+    document.addEventListener('keyup', e => {
+      switch (e.code) {
+        case 'KeyW': moveForward = false; break;
+        case 'KeyS': moveBackward = false; break;
+        case 'KeyA': moveLeft = false; break;
+        case 'KeyD': moveRight = false; break;
+      }
+    });
+
+    // Floor
+    let floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(200, 200),
+      new THREE.MeshBasicMaterial({color: 0x333333, side: THREE.DoubleSide})
+    );
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // Random objects
+    for (let i = 0; i < 50; i++) {
+      let box = new THREE.Mesh(
+        new THREE.BoxGeometry(),
+        new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff })
+      );
+      box.position.set(
+        Math.random() * 100 - 50,
+        0.5,
+        Math.random() * 100 - 50
+      );
+      scene.add(box);
+    }
+
+    // Lighting
+    const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    light.position.set(0, 200, 0);
+    scene.add(light);
+
+    // Animate
+    let clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      let delta = clock.getDelta();
+
+      // Movement
+      velocity.set(0, 0, 0);
+      direction.z = Number(moveForward) - Number(moveBackward);
+      direction.x = Number(moveRight) - Number(moveLeft);
+      direction.normalize(); // prevent faster diagonal movement
+
+      if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
+      if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
+
+      controls.moveRight(-velocity.x);
+      controls.moveForward(-velocity.z);
+
+      // Arrow key look
+      camera.rotation.order = 'YXZ';
+      camera.rotation.y += yaw;
+      camera.rotation.x += pitch;
+      yaw = 0; pitch = 0;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

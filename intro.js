@@ -1,5 +1,11 @@
-<style>
-  /* Basic styles for overlay and GIF */
+// --- CONFIGURATION ---
+const gifUrl = 'intro.gif'; // Change this if needed
+const displayTime = 190;    // milliseconds to show centered GIF
+const moveDownDuration = 600; // ms (matches CSS transition)
+
+// --- Inject CSS styles ---
+const style = document.createElement('style');
+style.textContent = `
   #whiteOverlay {
     position: fixed;
     top: 0;
@@ -11,56 +17,51 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.6s ease-in, opacity 0.6s ease-in;
+    transition: transform ${moveDownDuration}ms ease-in, opacity ${moveDownDuration}ms ease-in;
     will-change: transform, opacity;
   }
 
   #introGif {
     max-width: 80%;
     max-height: 80%;
-    transition: transform 0.6s ease-in, opacity 0.6s ease-in;
+    transition: transform ${moveDownDuration}ms ease-in, opacity ${moveDownDuration}ms ease-in;
     will-change: transform, opacity;
   }
 
-  /* Class to trigger moving down */
   .move-down {
     transform: translateY(100vh);
     opacity: 0;
   }
-</style>
+`;
+document.head.appendChild(style);
 
-<script>
-  // Create white overlay
-  const overlay = document.createElement('div');
-  overlay.id = 'whiteOverlay';
+// --- Create overlay and GIF ---
+const overlay = document.createElement('div');
+overlay.id = 'whiteOverlay';
 
-  // Create intro.gif image
-  const gif = document.createElement('img');
-  gif.id = 'introGif';
-  gif.src = 'intro.gif';
+const gif = document.createElement('img');
+gif.id = 'introGif';
+gif.src = gifUrl;
 
-  // Append GIF to overlay
-  overlay.appendChild(gif);
+overlay.appendChild(gif);
+document.body.appendChild(overlay);
 
-  // Append overlay to body
-  document.body.appendChild(overlay);
+// --- Wait for DOMContentLoaded ---
+window.addEventListener('DOMContentLoaded', () => {
+  // Optional small delay to ensure GIF is visible
+  setTimeout(() => {
+    gif.style.opacity = '1';
 
-  // Wait for DOM to be fully loaded
-  window.addEventListener('DOMContentLoaded', () => {
-    // Wait a small amount to ensure GIF is visible
+    // Wait displayTime, then move down
     setTimeout(() => {
-      gif.style.opacity = '1';
+      overlay.classList.add('move-down');
+      gif.classList.add('move-down');
 
-      // Wait 0.19 seconds, then move down
+      // After moveDownDuration, remove overlay
       setTimeout(() => {
-        overlay.classList.add('move-down');
-        gif.classList.add('move-down');
-
-        // Wait for the animation to complete, then remove overlay
-        setTimeout(() => {
-          overlay.remove();
-        }, 600); // matches CSS transition duration
-      }, 190); // 0.19 seconds
-    }, 50); // small delay to avoid visual glitch
-  });
-</script>
+        overlay.remove();
+        style.remove(); // Optional: clean up injected styles
+      }, moveDownDuration);
+    }, displayTime);
+  }, 50);
+});

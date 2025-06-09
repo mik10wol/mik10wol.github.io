@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const gifUrl = 'intro.gif'; // Change this if needed
-const displayTime = 900;    // milliseconds to show centered GIF
+const displayTime = 2000;    // milliseconds to show centered GIF
 const moveDownDuration = 600; // ms (matches CSS transition)
 
 // --- Inject CSS styles ---

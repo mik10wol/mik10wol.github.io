@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hello, world!</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="" />
+  <link rel="icon" href="favicon.png">
+</head>
+<body>
+  <center>
+    <h1>Blank Page!</h1>
+    <p>\/ Press to remove everything inside body \/</p>
+    <button id="clear">Clear Children</button>
+  </center>
+  
+  <script>
+    let container = document.getElementById("container");
+    let button = document.getElementById("clear");
+  
+    button.addEventListener("click", function() {
+      // Remove all children:
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+    });
+  </script>
+</body>
+</html>
